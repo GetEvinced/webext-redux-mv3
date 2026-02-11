@@ -173,11 +173,22 @@ export default ({ channelName = defaultOpts.channelName } = defaultOpts) => {
 
     /**
      * State provider for content-script initialization
+     * MV3 FIX: sendResponse doesn't work reliably when service worker wakes up.
+     * We broadcast full state via sendMessage which is reliable in MV3.
      */
     stateProviderListener.setListener((request, sender, sendResponse) => {
       // This listener is only called with messages that pass filterStateMessages
       const state = store.getState();
 
+      // MV3 FIX: Primary method - broadcast full state via sendMessage (reliable in MV3)
+      serializedMessagePoster({
+        type: STATE_TYPE,
+        payload: state,
+        channelName,
+      });
+
+      // Secondary: sendResponse (works for small states; proxy ignores if
+      // already initialized via the STATE_TYPE broadcast above)
       sendResponse({
         type: FETCH_STATE_TYPE,
         payload: state,

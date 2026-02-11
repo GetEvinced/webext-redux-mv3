@@ -25,6 +25,33 @@ All UI Components follow the same basic flow:
 
 ![Architecture](https://cloud.githubusercontent.com/assets/603426/18599404/329ca9ca-7c0d-11e6-9a02-5718a0fba8db.png)
 
+## Recent Changes
+
+### Upcoming - Enhanced MV3 Reliability Fixes
+
+Building on v4.0.0, additional fixes have been added to improve reliability in Manifest V3 service workers:
+
+#### State Initialization Fix
+- **Problem**: When a service worker wakes up, `sendResponse()` doesn't work reliably in MV3, causing proxy stores to fail initialization.
+- **Solution**: State provider now broadcasts the full state using `browser.runtime.sendMessage()` (which is reliable in MV3) as the primary method, with `sendResponse()` as a fallback.
+- **Impact**: Proxy stores can now reliably initialize even when waking up a dormant service worker.
+
+#### Patch Ordering Fix
+- **Problem**: If state patches arrive before the initial full state, they would be applied to an empty state, resulting in broken/partial state in proxy stores.
+- **Solution**: Patches are now only applied after the proxy store has received the full initial state at least once.
+- **Impact**: Eliminates race conditions during proxy store initialization, ensuring state consistency.
+
+These fixes ensure webext-redux works reliably with MV3's event-driven service worker model.
+
+### v4.0.0 - Async Response Handling & Breaking Changes
+
+This release fixes browser console errors and requires a breaking API change:
+
+- **Fixed**: Eliminated "message channel closed before a response was received" errors by implementing message filtering
+- **Breaking Change**: `channelName` must now be passed to `createWrapStore()` instead of `wrapStore()` to enable proper message filtering
+- **Documentation**: Clarified that `createWrapStore()` must be called statically in the global scope of the service worker, following [Chrome's event listener requirements](https://developer.chrome.com/docs/extensions/get-started/tutorial/service-worker-events#step-5)
+
+
 ## Basic Usage ([full docs here](https://github.com/tshaddix/webext-redux/wiki))
 
 As described in the [introduction](https://github.com/tshaddix/webext-redux/wiki/Introduction#webext-redux), there are two pieces to a basic implementation of this package.
