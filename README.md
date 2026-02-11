@@ -12,6 +12,45 @@ This package is available on [npm](https://www.npmjs.com/package/webext-redux):
 npm install webext-redux
 ```
 
+## Publishing to JFrog Artifactory
+
+This package (`@evinced-private/webext-redux-mv3`) is published to Evinced's private JFrog Artifactory registry.
+
+### Setup
+
+Before publishing, you need to create a `.npmrc` file in the project root with your JFrog credentials. 
+
+**Important**: The `.npmrc` file is gitignored and should never be committed to the repository as it contains authentication credentials.
+
+To set up your `.npmrc`:
+
+1. Copy the `.npmrc` configuration from the `ui-common` repository
+2. Place it in the root of this project
+3. Ensure it contains the proper registry configuration for `@evinced-private` scope pointing to JFrog Artifactory
+
+### Publishing Steps
+
+1. **Bump the version** (if not already done):
+   ```bash
+   npm version patch  # for bug fixes (e.g., 4.1.0 -> 4.1.1)
+   # or
+   npm version minor  # for new features (e.g., 4.1.0 -> 4.2.0)
+   # or
+   npm version major  # for breaking changes (e.g., 4.1.0 -> 5.0.0)
+   ```
+
+2. **Build and publish**:
+   ```bash
+   [[ -f .npmrc ]] && npm publish --access restricted
+   ```
+   
+   The `prepublishOnly` script will automatically build the package before publishing.
+
+3. **Verify the publish**:
+   ```bash
+   npm view @evinced-private/webext-redux-mv3
+   ```
+
 ## Overview
 
 `webext-redux` allows you to build your Web Extension like a Redux-powered webapp. The background page holds the Redux store, while Popovers and Content-Scripts act as UI Components, passing actions and state updates between themselves and the background store. At the end of the day, you have a single source of truth (your Redux store) that describes the entire state of your extension.
