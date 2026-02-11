@@ -102,7 +102,12 @@ class Store {
           break;
 
         case PATCH_STATE_TYPE:
-          this.patchState(message.payload);
+          // MV3 FIX: Only apply patches after we've received the full state at least once.
+          // Patches arriving before STATE_TYPE would be applied to empty state,
+          // resulting in partial/broken state.
+          if (this.readyResolved) {
+            this.patchState(message.payload);
+          }
           break;
 
         default:
